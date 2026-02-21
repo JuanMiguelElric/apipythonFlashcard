@@ -1,4 +1,4 @@
-from database import get_driver
+from database.database import get_driver
 from repository.FlahcardRepository import FlashcardRepository
 from flask import request, jsonify
 
