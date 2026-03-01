@@ -1,13 +1,15 @@
-
-
 class FlashcardRepository:
     @staticmethod
-    def save (driver, categoria, tipo, flashcard, usuario):
+    def save(driver, categoria, tipo, flashcard, usuario):
+        # Extrair os valores de flashcard
+        titulo = flashcard.get('titulo', '')
+        descricao = flashcard.get('descricao', '')
+
         driver.execute_query(
             """
-            MERGE (c:categoria{categoria:$categoria})
+            MERGE (c:categoria {categoria:$categoria})
             MERGE (t:tipo {tipo:$tipo})
-            MERGE (f:flashcard {flashcard:$flashcard})
+            MERGE (f:flashcard {titulo:$titulo, descricao:$descricao})
             MERGE (u:usuario {usuario:$usuario})
 
             MERGE (c)-[:CATEGORIA]->(t)
@@ -16,6 +18,7 @@ class FlashcardRepository:
             """,
             categoria=categoria,
             tipo=tipo,
-            flashcard=flashcard,
+            titulo=titulo,
+            descricao=descricao,
             usuario=usuario
         )
