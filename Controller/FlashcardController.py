@@ -5,6 +5,21 @@ import json
 
 class FlashcardController:
     @staticmethod
+    def index():
+        try:
+            # Obtém o driver para acessar o banco de dados
+            with get_driver() as driver:
+                # Chama o método index no repositório e passa o driver
+                flashcards = FlashcardRepository.index(driver)
+            
+            # Retorna os flashcards no formato JSON com o status 200 (OK)
+            return jsonify(flashcards), 200
+        
+        except Exception as e:
+            # Em caso de erro, retorna uma mensagem de erro no formato JSON com o status 500 (Erro Interno do Servidor)
+            return jsonify({"error": str(e)}), 500
+    
+    @staticmethod
     def create_post():
         try:
             with get_driver() as driver:

@@ -7,6 +7,9 @@ app = Flask(__name__)
 def hello_world():
     return "hellow world"
 
+@app.route('/flashcard/index',methods=['GET'])
+def index():
+    return FlashcardController.index()
 @app.route("/submit_flash",methods=['POST'])
 def submit_flash():
     return FlashcardController.create_post()
