@@ -7,6 +7,7 @@ class FlashcardRepository:
             RETURN c, t, f, u, r1, r2, r3
             """
         )
+        print(result)
 
         # Inicializa a lista para armazenar os dados dos flashcards
         flashcards_json = []
@@ -28,6 +29,7 @@ class FlashcardRepository:
             # Agora que temos as propriedades, vamos extrair os dados relevantes
             categoria = row['c'].get('categoria', '')
             tipo = row['t'].get('tipo', '')
+            flashcard = row['f'].get('flashcard','')
             titulo = row['f'].get('titulo', '')
             descricao = row['f'].get('descricao', '')
             usuario = row['u'].get('usuario', '')
@@ -48,11 +50,7 @@ class FlashcardRepository:
                     'nome': tipo,
                     'criador': criador_tipo
                 },
-                'flashcard': {
-                    'titulo': titulo,
-                    'descricao': descricao,
-                    'criador': criador_flashcard
-                },
+                'flashcard': flashcard
 
             })
 
