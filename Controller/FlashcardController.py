@@ -29,14 +29,9 @@ class FlashcardController:
                 flashcard = data.get('flashcard')
                 usuario = data.get('usuario')
 
-                print(categoria, usuario,tipo,flashcard);
-
                 if not categoria or not tipo or not flashcard or not usuario:
                     return jsonify({"error":"Campos vazios"}),400
                 
-                # Verifique se o campo flashcard tem as chaves esperadas
-                if 'titulo' not in flashcard or 'descricao' not in flashcard:
-                    return jsonify({"error": "Dados do flashcard incompletos"}), 400
                 if isinstance(flashcard, str):
                     flashcard = json.loads(flashcard)
 
