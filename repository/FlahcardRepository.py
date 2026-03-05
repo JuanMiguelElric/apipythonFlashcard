@@ -7,7 +7,7 @@ class FlashcardRepository:
             RETURN c, t, f, u, r1, r2, r3
             """
         )
-        print(result)
+
 
         # Inicializa a lista para armazenar os dados dos flashcards
         flashcards_json = []
@@ -29,52 +29,62 @@ class FlashcardRepository:
             # Agora que temos as propriedades, vamos extrair os dados relevantes
             categoria = row['c'].get('categoria', '')
             tipo = row['t'].get('tipo', '')
-            flashcard = row['f'].get('flashcard','')
-            titulo = row['f'].get('titulo', '')
-            descricao = row['f'].get('descricao', '')
+            question = row['f'].get('titulo','')
+            multiple_choice = row['f'].get('multiple_choice','')
+            summary = row['f'].get('descricao','')
             usuario = row['u'].get('usuario', '')
 
-            # Criadores dos relacionamentos
-            criador_categoria = row['r1'].get('criador', None)
-            criador_tipo = row['r2'].get('criador', None)
-            criador_flashcard = row['r3'].get('criador', None)
-
             # Adiciona os dados no formato JSON
+
             flashcards_json.append({
                 'usuario': usuario,
-                'categoria': {
-                    'nome': categoria,
-                    'criador': criador_categoria
-                },
-                'tipo': {
-                    'nome': tipo,
-                    'criador': criador_tipo
-                },
-                'flashcard': flashcard
+                'categoria': categoria,
+                'tipo':  tipo,
+                'flashcard':{
+                    'question':question,
+                    'summary':summary,
+                    'multiple-choice':multiple_choice
+                }
 
             })
 
         return flashcards_json
     @staticmethod
     def save(driver, categoria, tipo, flashcard, usuario):
-        # Extrair os valores de flashcard
-        titulo = flashcard.get('titulo', '')
-        descricao = flashcard.get('descricao', '')
+        try:
+            # Extrair os valores de flashcard
+            titulo = flashcard.get('question', '')
+            descricao = flashcard.get('summary', None)
+            open_ended = flashcard.get('open-ended', None)
+            multiple_choice = flashcard.get('multiple-choice', None)
 
-        driver.execute_query(
-            """
-            MERGE (c:categoria {categoria:$categoria})
-            MERGE (t:tipo {tipo:$tipo})
-            MERGE (f:flashcard {titulo:$titulo, descricao:$descricao})
-            MERGE (u:usuario {usuario:$usuario})
+            # Garantir que valores nulos sejam substituídos por um valor válido
+            if multiple_choice is None:
+                multiple_choice = ''  # Ou outro valor padrão, como 'Não especificado' ou False
+            
+            if open_ended is None:
+                open_ended = False  # Ou outro valor padrão, como False para questões de múltipla escolha
+            
+            # Executa a consulta Cypher
+            driver.execute_query(
+                """
+                MERGE (c:categoria {categoria:$categoria})
+                MERGE (t:tipo {tipo:$tipo})
+                MERGE (f:flashcard {titulo:$titulo, descricao:coalesce($descricao, ''), open_ended:coalesce($open_ended, false), multiple_choice:coalesce($multiple_choice, '')})
+                MERGE (u:usuario {usuario:$usuario})
 
-            MERGE (c)-[:CATEGORIA]->(t)
-            MERGE (t)-[:TIPO_do_flash_card]->(f)
-            MERGE (f)-[:Criado_por]->(u)
-            """,
-            categoria=categoria,
-            tipo=tipo,
-            titulo=titulo,
-            descricao=descricao,
-            usuario=usuario
-        )
+                MERGE (c)-[:CATEGORIA]->(t)
+                MERGE (t)-[:TIPO_do_flash_card]->(f)
+                MERGE (f)-[:Criado_por]->(u)
+                """,
+                categoria=categoria,
+                tipo=tipo,
+                titulo=titulo,
+                descricao=descricao,
+                open_ended=open_ended,
+                multiple_choice=multiple_choice,
+                usuario=usuario
+            )
+        except Exception as e:
+            print(f"Erro ao salvar o flashcard: {e}")
+            raise  # Relevanta a exceção para retornar o erro 500
