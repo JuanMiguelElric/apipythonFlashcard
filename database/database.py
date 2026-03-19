@@ -1,9 +1,9 @@
 from neo4j import GraphDatabase, RoutingControl
 
 
-URI = "neo4j+s://db3928ca.databases.neo4j.io"
+URI = "neo4j+s://35a8dc7c.databases.neo4j.io"
 
-AUTH = ("db3928ca", "DBORn5DJOlpkA8byKEWsh9McgsBJFcfLH8zGCVhoQTo")
+AUTH = ("neo4j", "D9EQ-E-W_7J-vzXr6oVgWUh3CKWLtVP4Q8YgywAR5WI")
 
 def get_driver():
     return GraphDatabase.driver(URI, auth = AUTH)

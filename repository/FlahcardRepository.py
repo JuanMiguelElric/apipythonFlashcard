@@ -47,6 +47,8 @@ class FlashcardRepository:
                 }
 
             })
+         
+         
 
         return flashcards_json
     @staticmethod
@@ -64,7 +66,7 @@ class FlashcardRepository:
             
             if open_ended is None:
                 open_ended = False  # Ou outro valor padrão, como False para questões de múltipla escolha
-            
+            print(categoria)
             # Executa a consulta Cypher
             driver.execute_query(
                 """
