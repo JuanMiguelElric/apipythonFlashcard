@@ -1,0 +1,11 @@
+CREATE CONSTRAINT categoria_unique IF NOT EXISTS
+FOR (c:categoria) REQUIRE c.categoria IS UNIQUE;
+
+CREATE CONSTRAINT tipo_unique IF NOT EXISTS
+FOR (t:tipo) REQUIRE (t.tipo, t.categoria) IS UNIQUE;
+
+CREATE CONSTRAINT flashcard_unique IF NOT EXISTS
+FOR (f:flashcard) REQUIRE f.titulo IS UNIQUE;
+
+CREATE CONSTRAINT usuario_unique IF NOT EXISTS
+FOR (u:usuario) REQUIRE u.usuario IS UNIQUE;
