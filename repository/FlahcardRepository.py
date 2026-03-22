@@ -26,11 +26,12 @@ class FlashcardRepository:
         return flashcards_json
     @staticmethod
     def save(driver, categoria, tipo, flashcard, usuario):
+        print(flashcard)
         try:
             # Extrair os valores de flashcard
             titulo = flashcard.get('question', '')
             descricao = flashcard.get('summary', None)
-            open_ended = flashcard.get('open-ended', None)
+            open_ended = flashcard.get('answer', None)
             multiple_choice = flashcard.get('multiple-choice', None)
 
             # Garantir que valores nulos sejam substituídos por um valor válido
