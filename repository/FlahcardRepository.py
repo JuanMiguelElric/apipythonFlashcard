@@ -1,3 +1,4 @@
+import json
 class FlashcardRepository:
     def index(driver):
         result = driver.execute_query("""
@@ -9,7 +10,8 @@ class FlashcardRepository:
                 collect({
                     question: f.titulo,
                     summary: f.descricao,
-                    multiple_choice: f.multiple_choice
+                    multiple_choice: f.multiple_choice,
+                    answer : f.open_ended
                 }) AS flashcards
         """)
 
@@ -32,7 +34,7 @@ class FlashcardRepository:
             titulo = flashcard.get('question', '')
             descricao = flashcard.get('summary', None)
             open_ended = flashcard.get('answer', None)
-            multiple_choice = flashcard.get('multiple-choice', None)
+            multiple_choice = json.dumps(flashcard.get('options', None))
 
             # Garantir que valores nulos sejam substituídos por um valor válido
             if multiple_choice is None:
