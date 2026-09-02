@@ -53,7 +53,16 @@ def update(driver: Driver, flashcard_id: int, data: UpdateFlashcardRequest, data
 def delete(driver: Driver, flashcard_id: int, usuario: int, database: str = "neo4j") -> None:
     existing_owner = repo.get_owner_user_id(driver, flashcard_id, database)
     if existing_owner is None:
-        raise NotFoundError("Flashcard nao encontrado.", details={"flashcard_id": flashcard_id})
+        # DELETE e idempotente: se o node ja nao existe (nunca existiu, ou ja
+        # foi removido por uma chamada anterior cuja resposta se perdeu), o
+        # estado final desejado ja foi alcancado - retornar sucesso em vez de
+        # NotFoundError. Isso e o que permite ao FlashcardServiceClient do
+        # Laravel reenviar com seguranca apos timeout/conexao perdida sem
+        # arriscar um rollback da transacao MySQL por causa de um 404
+        # espurio. Ownership so pode (e so precisa) ser checado quando o
+        # node ainda existe.
+        return
+
     if existing_owner != usuario:
         raise ForbiddenError(
             "Usuario nao e proprietario deste flashcard.",

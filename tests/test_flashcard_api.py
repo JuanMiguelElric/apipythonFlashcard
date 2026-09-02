@@ -160,7 +160,7 @@ def test_update_nonexistent_flashcard_returns_404(client, auth_headers, next_id)
     assert response.get_json()["error"]["code"] == "NOT_FOUND"
 
 
-def test_delete_existing_and_then_missing_flashcard(client, auth_headers, next_id):
+def test_delete_existing_and_then_missing_flashcard_is_idempotent(client, auth_headers, next_id):
     fid, uid = next_id(), next_id()
     client.post("/submit_flash", json=_submit_payload(fid, uid), headers=auth_headers)
 
@@ -168,7 +168,30 @@ def test_delete_existing_and_then_missing_flashcard(client, auth_headers, next_i
     second = client.delete(f"/flashcard/{fid}", json={"usuario": uid}, headers=auth_headers)
 
     assert first.status_code == 204
-    assert second.status_code == 404
+    assert second.status_code == 204
+
+
+def test_delete_of_flashcard_that_never_existed_is_204(client, auth_headers, next_id):
+    """DELETE e idempotente quanto ao estado final ('recurso nao existe'),
+    entao pedir para remover um id que nunca existiu tambem e sucesso."""
+    fid, uid = next_id(), next_id()
+
+    response = client.delete(f"/flashcard/{fid}", json={"usuario": uid}, headers=auth_headers)
+
+    assert response.status_code == 204
+
+
+def test_delete_real_error_is_not_swallowed_into_success(client, auth_headers, next_id):
+    """So a ausencia do recurso vira sucesso - um erro real do Neo4j durante
+    o delete precisa continuar sendo reportado como erro."""
+    fid, uid = next_id(), next_id()
+    client.post("/submit_flash", json=_submit_payload(fid, uid), headers=auth_headers)
+
+    with patch("app.services.flashcard_service.repo.delete_flashcard", side_effect=RuntimeError("neo4j indisponivel")):
+        response = client.delete(f"/flashcard/{fid}", json={"usuario": uid}, headers=auth_headers)
+
+    assert response.status_code == 500
+    assert response.get_json()["error"]["code"] == "INTERNAL_ERROR"
 
 
 def test_delete_by_non_owner_is_forbidden(client, auth_headers, next_id):
