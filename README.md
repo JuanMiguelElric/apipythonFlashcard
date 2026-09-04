@@ -23,6 +23,7 @@ python -m venv .venv
 .venv/Scripts/activate        # Windows
 pip install -r requirements.txt
 cp .env.example .env           # preencher com valores reais
+.\.venv\Scripts\Activate.ps1
 python run.py
 ```
 
